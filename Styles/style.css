@@ -1,0 +1,97 @@
+.container{
+    height: 250px;
+    width: 300px;
+    padding:5px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 20px;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 14px;
+    resize: vertical; /* Allow vertical resize only */
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.feedback-container {
+    font-size: 16px; /* Increased font size */
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+}
+
+textarea:focus {
+    border-color: #66afe9;
+    outline: none;
+    box-shadow: 0 0 5px rgba(102, 175, 233, .6);
+}
+
+.note-item {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 16px; /* Increased font size */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.spacer {
+    height: 20px; /* Adjust the height as needed */
+}
+
+.saveButton {
+    background-color: green;
+    color: white; /* Text color */
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px; /* Optional: Add rounded corners */
+}
+
+.saveButton:hover {
+    background-color: darkgreen; /* Optional: Change color on hover */
+}
+
+#savenotes {
+    margin-top: 20px;
+}
+
+.copy-icon, .delete-icon {
+    width: 20px; /* Adjust as needed */
+    height: 20px; /* Adjust as needed */
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.copy-icon {
+    margin-right: 10px;
+}
+
+.delete-icon {
+    margin-left: 10px;
+}
