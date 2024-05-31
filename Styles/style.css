@@ -21,13 +21,13 @@ textarea {
     border-radius: 4px;
     background-color: #fff;
     font-size: 14px;
-    resize: vertical; /* Allow vertical resize only */
+    resize: vertical; 
     font-family: Arial, sans-serif;
     color: #333;
 }
 
 .feedback-container {
-    font-size: 16px; /* Increased font size */
+    font-size: 16px; 
     padding: 10px;
     margin: 10px 0;
     background-color: #d4edda;
@@ -48,7 +48,7 @@ textarea:focus {
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: #fff;
-    font-size: 16px; /* Increased font size */
+    font-size: 16px; 
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -56,12 +56,12 @@ textarea:focus {
 }
 
 .spacer {
-    height: 20px; /* Adjust the height as needed */
+    height: 20px; 
 }
 
 .saveButton {
     background-color: green;
-    color: white; /* Text color */
+    color: white; 
     border: none;
     padding: 10px 20px;
     text-align: center;
@@ -70,11 +70,11 @@ textarea:focus {
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
-    border-radius: 4px; /* Optional: Add rounded corners */
+    border-radius: 4px; 
 }
 
 .saveButton:hover {
-    background-color: darkgreen; /* Optional: Change color on hover */
+    background-color: darkgreen; 
 }
 
 #savenotes {
@@ -82,8 +82,8 @@ textarea:focus {
 }
 
 .copy-icon, .delete-icon {
-    width: 20px; /* Adjust as needed */
-    height: 20px; /* Adjust as needed */
+    width: 20px; 
+    height: 20px; 
     vertical-align: middle;
     cursor: pointer;
 }
