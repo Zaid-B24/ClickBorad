@@ -1,14 +1,15 @@
+
 {
-    "manifest_version": 2,
-    "name": "My  Extension",
-    "version": "1.0",
-    "description": "A simple extension for maintaining my stuff.",
-    "permissions": ["storage"],
-    "browser_action": {
-      "default_popup": "popup.html",
-      "default_icon": {
-        "16": "Images/MainIcon.png"
-      }
+  "manifest_version": 2,
+  "name": "My Extension",
+  "version": "1.0",
+  "description": "A simple extension for maintaining my stuff.",
+  "permissions": ["storage"],
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "Images/MainIcon.png"
     }
-  }
-  
+  },
+  "content_security_policy": "script-src 'self'; object-src 'self'"
+}
