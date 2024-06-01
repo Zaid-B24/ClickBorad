@@ -44,31 +44,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to display saved notes as a list
     function displaySavedNotes(notes) {
-        savedNotesContainer.innerHTML = ''; // Clear previous notes
-        savedNotesContainer.appendChild(feedbackContainer); // Keep feedback container
+        savedNotesContainer.innerHTML = '';
         notes.forEach(function(note, index) {
             var noteItem = document.createElement('div');
-            noteItem.className = 'note-item'; // Add the note-item class
-            noteItem.textContent = note;
+            noteItem.className = 'note-item';
 
-            // Create the copy icon
+            var noteText = document.createElement('div');
+            noteText.className = 'note-text';
+            noteText.textContent = note;
+
             var copyIcon = document.createElement('img');
-            copyIcon.src = 'Images/copyIcon.svg'; // Replace 'copyIcon.svg' with the path to your SVG file
+            copyIcon.src = 'Images/copyIcon.svg';
             copyIcon.alt = 'Copy';
             copyIcon.className = 'copy-icon';
             copyIcon.addEventListener('click', function() {
                 copyToClipboard(note);
             });
-            noteItem.appendChild(copyIcon);
 
-            // Create the delete icon
             var deleteIcon = document.createElement('img');
-            deleteIcon.src = 'Images/deleteIcon.svg'; // Replace 'deleteIcon.svg' with the path to your SVG file
+            deleteIcon.src = 'Images/deleteIcon.svg';
             deleteIcon.alt = 'Delete';
             deleteIcon.className = 'delete-icon';
             deleteIcon.addEventListener('click', function() {
                 deleteNote(index);
             });
+
+            noteItem.appendChild(noteText);
+            noteItem.appendChild(copyIcon);
             noteItem.appendChild(deleteIcon);
 
             savedNotesContainer.appendChild(noteItem);

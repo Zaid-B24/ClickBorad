@@ -27,13 +27,13 @@ textarea {
 }
 
 .feedback-container {
-    font-size: 16px; 
-    padding: 10px;
-    margin: 10px 0;
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-    border-radius: 4px;
+    margin-top: 10px;
+    padding: 5px;
+    background-color: #e0ffe0;
+    border: 1px solid #b2ffb2;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 14px;
 }
 
 textarea:focus {
@@ -42,17 +42,44 @@ textarea:focus {
     box-shadow: 0 0 5px rgba(102, 175, 233, .6);
 }
 
-.note-item {
+#notes {
+    width: 100%;
     padding: 10px;
-    margin: 10px 0;
+    margin-bottom: 10px;
     border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-    font-size: 16px; 
+    border-radius: 5px;
+    resize: vertical;
+    height: 100px;
+}
+
+#save {
+    background-color: green;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.note-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    max-height: 150px; 
+    overflow-y: auto; 
+}
+
+.note-text {
+    flex-grow: 1;
+    margin-right: 10px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
 }
 
 .spacer {
@@ -95,3 +122,4 @@ textarea:focus {
 .delete-icon {
     margin-left: 10px;
 }
+
