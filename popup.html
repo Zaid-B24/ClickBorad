@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>My Extension</title>
+    <link rel="preload" href="./Styles/style.css" as="style">
+    <link rel="stylesheet" href="./Styles/style.css">
+    <meta name="description" content="Chrome extension for saving and managing notes">
+    <meta name="format-detection" content="telephone=no">
+</head>
+<body>
+    <main class="container">
+        <textarea 
+            class="textareaclass" 
+            id="notes" 
+            placeholder="Enter..." 
+            aria-label="Enter your notes"
+            rows="4"
+            spellcheck="true"
+        ></textarea>
+        
+        <button 
+            class="saveButton" 
+            id="save" 
+            aria-label="Save note"
+            type="button"
+        >Save</button>
+        
+        <div 
+            id="savenotes" 
+            role="region" 
+            aria-label="Saved notes"
+            aria-live="polite"
+        ></div>
+        
+        <div class="spacer" aria-hidden="true"></div>
+    </main>
+
+    <script src="popup.js" defer></script>
+</body>
+</html>
