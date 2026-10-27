@@ -2,185 +2,156 @@ document.addEventListener("DOMContentLoaded", function () {
   // Cache DOM elements
   const elements = {
     saveButton: document.getElementById("save"),
+    clearButton: document.getElementById("clear"),
     notesInput: document.getElementById("notes"),
-    savedNotesContainer: document.getElementById("savenotes"),
+    savedNotesContainer: document.getElementById("savedNotes"),
     feedbackContainer: document.createElement("div"),
   };
 
   // Initialize feedback container
   elements.feedbackContainer.className = "feedback-container";
-  elements.savedNotesContainer.appendChild(elements.feedbackContainer);
+  document.body.appendChild(elements.feedbackContainer);
 
-  // Create a debounced feedback message handler
   const showFeedback = (() => {
     let timeoutId;
-    return (message) => {
+    return (message, isError = false) => {
       clearTimeout(timeoutId);
       elements.feedbackContainer.textContent = message;
+      elements.feedbackContainer.className = "feedback-container show";
+      
+      if (isError) {
+        elements.feedbackContainer.classList.add("error");
+      } else {
+        elements.feedbackContainer.classList.add("success");
+      }
+
       timeoutId = setTimeout(() => {
-        elements.feedbackContainer.textContent = "";
-      }, 2000);
+        elements.feedbackContainer.classList.remove("show");
+      }, 2500);
     };
   })();
 
-  // Create document fragment for better performance
+  // Using inline SVGs for guaranteed rendering in extension popup
+  const icons = {
+    copy: `<svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`,
+    edit: `<svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`,
+    delete: `<svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Delete"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`
+  };
+
   const createNoteElements = (note, index) => {
     const fragment = document.createDocumentFragment();
     const noteItem = document.createElement("div");
     noteItem.className = "note-item";
     noteItem.draggable = true;
-
-    // Use template literals for better readability and performance
-    noteItem.innerHTML = `
-          <div class="note-text">${note}</div>
-          <img src="Images/copyIcon.svg" alt="Copy" class="copy-icon" title="Copy">
-          <img src="Images/deleteIcon.svg" alt="Delete" class="delete-icon" title="Delete">
-          <img src="Images/editIcon.svg" alt="Edit" class="edit-icon" title="Edit">
-      `;
-
-    // Use event delegation for better performance
     noteItem.dataset.index = index;
+
+    const textDiv = document.createElement("div");
+    textDiv.className = "note-text";
+    textDiv.textContent = note;
+
+    const controlsDiv = document.createElement("div");
+    controlsDiv.className = "controls"; 
+    controlsDiv.innerHTML = `${icons.copy} ${icons.edit} ${icons.delete}`;
+
+    noteItem.appendChild(textDiv);
+    noteItem.appendChild(controlsDiv);
     fragment.appendChild(noteItem);
     return fragment;
   };
 
-  // Optimize storage operations
   const storage = {
     async get() {
       return new Promise((resolve) => {
-        chrome.storage.sync.get("notes", (data) => resolve(data.notes || []));
+        chrome.storage.local.get("notes", (data) => resolve(data.notes || []));
       });
     },
     async set(notes) {
-      return new Promise((resolve) => {
-        chrome.storage.sync.set({ notes }, resolve);
+      return new Promise((resolve, reject) => {
+        chrome.storage.local.set({ notes }, () => {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+          } else {
+            resolve();
+          }
+        });
       });
     },
   };
 
-  // Optimize note display
   const displaySavedNotes = async (notes) => {
     elements.savedNotesContainer.innerHTML = "";
     const fragment = document.createDocumentFragment();
-
-    notes.forEach((note, index) => {
-      fragment.appendChild(createNoteElements(note, index));
-    });
-
+    notes.forEach((note, index) =>
+      fragment.appendChild(createNoteElements(note, index))
+    );
     elements.savedNotesContainer.appendChild(fragment);
   };
 
-  // Optimize save operation
   const saveNotes = async () => {
     const note = elements.notesInput.value.trim();
     if (!note) return;
 
     try {
       const notes = await storage.get();
-      notes.push(note);
+      notes.unshift(note);
       await storage.set(notes);
       await displaySavedNotes(notes);
       elements.notesInput.value = "";
-      showFeedback("Notes saved successfully!");
+      showFeedback("Note saved!");
     } catch (error) {
-      showFeedback("Error saving note. Please try again.");
+      console.error(error);
+      showFeedback(error.message?.includes('QUOTA') ? "Storage full!" : "Error saving note", true);
     }
   };
 
-  // Optimize edit operation
+  // Replaced window.confirm with a two-step button for safety in MV3
+  const clearAllNotes = async (e) => {
+    const btn = e.target;
+    if (btn.dataset.confirming === "true") {
+      await storage.set([]);
+      await displaySavedNotes([]);
+      showFeedback("All notes cleared");
+      btn.textContent = "Clear";
+      btn.dataset.confirming = "false";
+      btn.style.backgroundColor = ""; // reset to css default
+      btn.style.color = "";
+    } else {
+      btn.textContent = "Sure?";
+      btn.dataset.confirming = "true";
+      btn.style.backgroundColor = "var(--danger)";
+      btn.style.color = "white";
+      
+      // Reset if they don't click again within 3 seconds
+      setTimeout(() => {
+        if (btn.dataset.confirming === "true") {
+          btn.textContent = "Clear";
+          btn.dataset.confirming = "false";
+          btn.style.backgroundColor = "";
+          btn.style.color = "";
+        }
+      }, 3000);
+    }
+  };
+
   const editNote = async (index, noteElement) => {
     const noteText = noteElement.querySelector(".note-text");
     const currentText = noteText.textContent;
+    noteText.innerHTML = "";
 
-    const editTemplate = `
-          <textarea class="edit-textarea">${currentText}</textarea>
-          <button class="save-edit-button">Save</button>
-      `;
+    const textarea = document.createElement("textarea");
+    textarea.className = "edit-textarea";
+    textarea.value = currentText;
 
-    noteText.innerHTML = editTemplate;
-    const textarea = noteText.querySelector(".edit-textarea");
+    const saveBtn = document.createElement("button");
+    saveBtn.className = "save-edit-button";
+    saveBtn.textContent = "Save";
+
+    noteText.appendChild(textarea);
+    noteText.appendChild(saveBtn);
     textarea.focus();
   };
 
-  // Optimize copy operation
-  const copyToClipboard = async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      showFeedback("Copied successfully!");
-    } catch (error) {
-      // Fallback for older browsers
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-      showFeedback("Copied successfully!");
-    }
-  };
-
-  // Drag and Drop functionality
-  let draggedItem = null;
-  let draggedIndex = null;
-
-  const handleDragStart = (e) => {
-    const noteItem = e.target.closest(".note-item");
-    if (!noteItem) return;
-
-    draggedItem = noteItem;
-    draggedIndex = parseInt(noteItem.dataset.index);
-    noteItem.classList.add("dragging");
-    e.dataTransfer.effectAllowed = "move";
-  };
-
-  const handleDragEnd = (e) => {
-    const noteItem = e.target.closest(".note-item");
-    if (!noteItem) return;
-
-    noteItem.classList.remove("dragging");
-    draggedItem = null;
-    draggedIndex = null;
-
-    // Remove all drag-over classes
-    document.querySelectorAll(".note-item").forEach((item) => {
-      item.classList.remove("drag-over");
-    });
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    const noteItem = e.target.closest(".note-item");
-    if (!noteItem || noteItem === draggedItem) return;
-
-    // Remove drag-over class from all items
-    document.querySelectorAll(".note-item").forEach((item) => {
-      item.classList.remove("drag-over");
-    });
-
-    noteItem.classList.add("drag-over");
-  };
-
-  const handleDrop = async (e) => {
-    e.preventDefault();
-    const noteItem = e.target.closest(".note-item");
-    if (!noteItem || !draggedItem) return;
-
-    const dropIndex = parseInt(noteItem.dataset.index);
-    if (draggedIndex === dropIndex) return;
-
-    try {
-      const notes = await storage.get();
-      const [draggedNote] = notes.splice(draggedIndex, 1);
-      notes.splice(dropIndex, 0, draggedNote);
-      await storage.set(notes);
-      await displaySavedNotes(notes);
-      showFeedback("Note order updated!");
-    } catch (error) {
-      showFeedback("Error updating note order. Please try again.");
-    }
-  };
-
-  // Event Delegation for better performance
+  // Event Listeners
   elements.savedNotesContainer.addEventListener("click", async (e) => {
     const noteItem = e.target.closest(".note-item");
     if (!noteItem) return;
@@ -188,51 +159,79 @@ document.addEventListener("DOMContentLoaded", function () {
     const index = parseInt(noteItem.dataset.index);
     const notes = await storage.get();
 
-    if (e.target.classList.contains("copy-icon")) {
-      await copyToClipboard(notes[index]);
-    } else if (e.target.classList.contains("delete-icon")) {
+    // Use closest() to handle clicks on the SVG paths internally
+    if (e.target.closest(".copy-icon")) {
+      await navigator.clipboard.writeText(notes[index]);
+      showFeedback("Copied to clipboard!");
+    } else if (e.target.closest(".delete-icon")) {
       notes.splice(index, 1);
       await storage.set(notes);
       await displaySavedNotes(notes);
-      showFeedback("Note deleted successfully!");
-    } else if (e.target.classList.contains("edit-icon")) {
+      showFeedback("Note deleted", true);
+    } else if (e.target.closest(".edit-icon")) {
       await editNote(index, noteItem);
+    } else if (e.target.classList.contains("save-edit-button")) {
+      const textarea = noteItem.querySelector(".edit-textarea");
+      const editedNote = textarea.value.trim();
+      if (editedNote) {
+        notes[index] = editedNote;
+        await storage.set(notes);
+        await displaySavedNotes(notes);
+        showFeedback("Note updated!");
+      }
     }
   });
 
-  // Save edited note
-  elements.savedNotesContainer.addEventListener("click", async (e) => {
-    if (!e.target.classList.contains("save-edit-button")) return;
-
-    const noteItem = e.target.closest(".note-item");
-    const index = parseInt(noteItem.dataset.index);
-    const textarea = noteItem.querySelector(".edit-textarea");
-    const editedNote = textarea.value.trim();
-
-    if (editedNote) {
-      const notes = await storage.get();
-      notes[index] = editedNote;
-      await storage.set(notes);
-      await displaySavedNotes(notes);
-      showFeedback("Note edited successfully!");
-    }
-  });
-
-  // Drag and Drop Event Listeners
-  elements.savedNotesContainer.addEventListener("dragstart", handleDragStart);
-  elements.savedNotesContainer.addEventListener("dragend", handleDragEnd);
-  elements.savedNotesContainer.addEventListener("dragover", handleDragOver);
-  elements.savedNotesContainer.addEventListener("drop", handleDrop);
-
-  // Event Listeners
   elements.saveButton.addEventListener("click", saveNotes);
-  elements.notesInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
+  if (elements.clearButton) {
+    elements.clearButton.addEventListener("click", clearAllNotes);
+  }
+
+  elements.notesInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
       saveNotes();
     }
   });
 
-  // Initial load
+  // Drag and Drop
+  let draggedItem = null;
+  elements.savedNotesContainer.addEventListener("dragstart", (e) => {
+    draggedItem = e.target.closest(".note-item");
+    e.dataTransfer.setData("text/plain", draggedItem.dataset.index);
+    draggedItem.classList.add("dragging");
+  });
+
+  elements.savedNotesContainer.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    const item = e.target.closest(".note-item");
+    if (item && item !== draggedItem) item.classList.add("drag-over");
+  });
+
+  elements.savedNotesContainer.addEventListener("dragleave", (e) => {
+    const item = e.target.closest(".note-item");
+    if (item) item.classList.remove("drag-over");
+  });
+
+  elements.savedNotesContainer.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    const dropTarget = e.target.closest(".note-item");
+    if (draggedItem) draggedItem.classList.remove("dragging");
+    document
+      .querySelectorAll(".note-item")
+      .forEach((i) => i.classList.remove("drag-over"));
+
+    if (!draggedItem || !dropTarget || draggedItem === dropTarget) return;
+
+    const from = parseInt(draggedItem.dataset.index);
+    const to = parseInt(dropTarget.dataset.index);
+    const notes = await storage.get();
+    const [moved] = notes.splice(from, 1);
+    notes.splice(to, 0, moved);
+
+    await storage.set(notes);
+    await displaySavedNotes(notes);
+  });
+
   storage.get().then(displaySavedNotes);
 });

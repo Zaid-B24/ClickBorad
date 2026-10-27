@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>My Extension</title>
-    <link rel="preload" href="./Styles/style.css" as="style">
+    <title>Clickboard</title>
     <link rel="stylesheet" href="./Styles/style.css">
     <meta name="description" content="Chrome extension for saving and managing notes">
     <meta name="format-detection" content="telephone=no">
@@ -21,15 +20,24 @@
             spellcheck="true"
         ></textarea>
         
-        <button 
-            class="saveButton" 
-            id="save" 
-            aria-label="Save note"
-            type="button"
-        >Save</button>
+        <div class="button-group">
+            <button 
+                class="saveButton" 
+                id="save" 
+                aria-label="Save note"
+                type="button"
+            >Save</button>
+
+            <button 
+                class="clearButton" 
+                id="clear" 
+                aria-label="Clear all notes"
+                type="button"
+            >Clear</button>
+        </div>
         
         <div 
-            id="savenotes" 
+            id="savedNotes" 
             role="region" 
             aria-label="Saved notes"
             aria-live="polite"
