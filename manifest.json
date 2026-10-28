@@ -24,8 +24,13 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "clickboard@yourname.com",
-      "strict_min_version": "109.0"
+      "id": "clickboard@zaidbaig.com",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
     }
   },
   "content_security_policy": {

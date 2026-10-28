@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
       clearTimeout(timeoutId);
       elements.feedbackContainer.textContent = message;
       elements.feedbackContainer.className = "feedback-container show";
-      
+
       if (isError) {
         elements.feedbackContainer.classList.add("error");
       } else {
@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const icons = {
     copy: `<svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`,
     edit: `<svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`,
-    delete: `<svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Delete"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`
+    delete: `<svg class="delete-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Delete"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`,
   };
 
   const createNoteElements = (note, index) => {
@@ -50,8 +50,13 @@ document.addEventListener("DOMContentLoaded", function () {
     textDiv.textContent = note;
 
     const controlsDiv = document.createElement("div");
-    controlsDiv.className = "controls"; 
-    controlsDiv.innerHTML = `${icons.copy} ${icons.edit} ${icons.delete}`;
+    controlsDiv.className = "controls";
+    const parser = new DOMParser();
+    const svgNodes = parser.parseFromString(
+      `${icons.copy} ${icons.edit} ${icons.delete}`,
+      "text/html",
+    );
+    controlsDiv.append(...svgNodes.body.childNodes);
 
     noteItem.appendChild(textDiv);
     noteItem.appendChild(controlsDiv);
@@ -82,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
     elements.savedNotesContainer.innerHTML = "";
     const fragment = document.createDocumentFragment();
     notes.forEach((note, index) =>
-      fragment.appendChild(createNoteElements(note, index))
+      fragment.appendChild(createNoteElements(note, index)),
     );
     elements.savedNotesContainer.appendChild(fragment);
   };
@@ -100,7 +105,12 @@ document.addEventListener("DOMContentLoaded", function () {
       showFeedback("Note saved!");
     } catch (error) {
       console.error(error);
-      showFeedback(error.message?.includes('QUOTA') ? "Storage full!" : "Error saving note", true);
+      showFeedback(
+        error.message?.includes("QUOTA")
+          ? "Storage full!"
+          : "Error saving note",
+        true,
+      );
     }
   };
 
@@ -120,7 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
       btn.dataset.confirming = "true";
       btn.style.backgroundColor = "var(--danger)";
       btn.style.color = "white";
-      
+
       // Reset if they don't click again within 3 seconds
       setTimeout(() => {
         if (btn.dataset.confirming === "true") {
