@@ -1,0 +1,40 @@
+name: Enforce Manifest Version Bump
+
+on:
+  push:
+    branches: ["PROD"]
+  pull_request:
+    branches: ["PROD"]
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetches full history so we can compare past commits
+
+      - name: Compare Manifest Versions
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # For PRs, compare against the target branch (PROD)
+            PREV_TARGET="origin/${{ github.base_ref }}"
+          else
+            # For direct pushes, compare with the previous commit
+            PREV_TARGET="HEAD~1"
+          fi
+
+          # Extract version numbers using jq
+          OLD_VERSION=$(git show $PREV_TARGET:manifest.json | jq -r .version)
+          NEW_VERSION=$(jq -r .version manifest.json)
+
+          echo "Previous version: $OLD_VERSION"
+          echo "New version: $NEW_VERSION"
+
+          if [ "$OLD_VERSION" == "$NEW_VERSION" ]; then
+            echo "::error::manifest.json version ($NEW_VERSION) was not updated. You must bump the version before pushing to PROD."
+            exit 1
+          fi
+
+          echo "Version bump verified: $OLD_VERSION -> $NEW_VERSION"
