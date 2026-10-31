@@ -1,0 +1,27 @@
+name: Mozilla Extension Linter
+
+on:
+  push:
+    branches: ["DEV", "PROD"]
+  pull_request:
+    branches: ["DEV", "PROD"]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install web-ext globally
+        run: npm install -g web-ext
+
+      - name: Run Mozilla Linter
+
+        run: web-ext lint -s .
