@@ -1,51 +1,57 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Clickboard</title>
-    <link rel="stylesheet" href="./Styles/style.css">
-    <meta name="description" content="Chrome extension for saving and managing notes">
-    <meta name="format-detection" content="telephone=no">
-</head>
-<body>
-    <main class="container">
-        <textarea 
-            class="textareaclass" 
-            id="notes" 
-            placeholder="Enter..." 
-            aria-label="Enter your notes"
-            rows="4"
-            spellcheck="true"
-        ></textarea>
-        
-        <div class="button-group">
-            <button 
-                class="saveButton" 
-                id="save" 
-                aria-label="Save note"
-                type="button"
-            >Save</button>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Clickboard</title>
+        <link rel="stylesheet" href="./Styles/style.css" />
+        <meta name="description" content="Chrome extension for saving and managing notes" />
+        <meta name="format-detection" content="telephone=no" />
+    </head>
+    <body>
+        <main class="container">
+            <!-- Minimal header containing only the Sidebar Pin button -->
+            <div class="header">
+                <button id="pin-btn" class="icon-btn" title="Dock to Sidebar" type="button">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-panel-right preview-icon"
+                    >
+                        <rect width="18" height="18" x="3" y="3" rx="2" />
+                        <path d="M15 3v18" />
+                    </svg>
+                </button>
+            </div>
 
-            <button 
-                class="clearButton" 
-                id="clear" 
-                aria-label="Clear all notes"
-                type="button"
-            >Clear</button>
-        </div>
-        
-        <div 
-            id="savedNotes" 
-            role="region" 
-            aria-label="Saved notes"
-            aria-live="polite"
-        ></div>
-        
-        <div class="spacer" aria-hidden="true"></div>
-    </main>
+            <textarea
+                class="textareaclass"
+                id="notes"
+                placeholder="Enter..."
+                aria-label="Enter your notes"
+                rows="4"
+                spellcheck="true"
+            ></textarea>
 
-    <script src="popup.js" defer></script>
-</body>
+            <div class="button-group">
+                <button class="saveButton" id="save" aria-label="Save note" type="button">Save</button>
+
+                <button class="clearButton" id="clear" aria-label="Clear all notes" type="button">Clear</button>
+            </div>
+
+            <div id="savedNotes" role="region" aria-label="Saved notes" aria-live="polite"></div>
+
+            <div class="spacer" aria-hidden="true"></div>
+        </main>
+
+        <script src="popup.js" defer></script>
+    </body>
 </html>
