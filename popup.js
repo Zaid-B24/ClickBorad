@@ -244,4 +244,44 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   storage.get().then(displaySavedNotes);
+
+  // --- Pop-out Sidebar Logic ---
+  const pinBtn = document.getElementById("pin-btn");
+
+  if (pinBtn) {
+    pinBtn.addEventListener("click", () => {
+      // 1. Try Chrome/Edge Side Panel API
+      if (chrome.sidePanel && chrome.sidePanel.open) {
+        chrome.windows.getCurrent((win) => {
+          chrome.sidePanel.open({ windowId: win.id });
+          window.close();
+        });
+      }
+      // 2. Try Firefox Sidebar API
+      else if (
+        window.browser &&
+        browser.sidebarAction &&
+        browser.sidebarAction.open
+      ) {
+        browser.sidebarAction.open();
+        window.close();
+      }
+      // 3. Fallback (If older browser version)
+      else {
+        alert(
+          "Click the Sidebar icon in your browser toolbar to open Clickboard in split-view.",
+        );
+      }
+    });
+
+    // Hide the pin button if we are ALREADY running inside the sidebar
+    const isSidePanel =
+      window.innerWidth > 0 &&
+      window.innerWidth < 500 &&
+      window.innerHeight > 600;
+
+    if (window.name === "sidebar" || isSidePanel) {
+      pinBtn.style.display = "none";
+    }
+  }
 });

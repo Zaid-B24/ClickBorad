@@ -279,3 +279,36 @@ body {
   pointer-events: none;
   margin-bottom: 5px;
 }
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  background-color: transparent;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  color: var(--text-color);
+  opacity: 0.6;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.icon-btn:hover {
+  background-color: var(--border-color);
+  opacity: 1;
+}
+
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
